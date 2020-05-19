@@ -14,6 +14,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -45,7 +46,7 @@ public class OrderServiceImpl implements IOrderService {
         Long orderId = savePreOrder(order);
         try {
             //3.扣减库存
-
+            reduceGoodsNum(order);
             //4.扣减优惠券
 
             //5.使用余额
@@ -202,6 +203,25 @@ public class OrderServiceImpl implements IOrderService {
         }
 
         log.info("订单:[" + order.getOrderId() + "] 扣减库存:[" + order.getGoodsNumber() + "个]成功");
+
+    }
+
+    private void changeCouponStatus(TradeOrder order) {
+        //判断用户是否使用优惠券
+        if (!StringUtils.isEmpty(order.getCouponId())) {
+            //封装优惠券对象
+            TradeCoupon coupon = couponService.findOne(order.getCouponId());
+            coupon.setIsUsed(ShopCode.SHOP_COUPON_ISUSED.getCode());
+            coupon.setUsedTime(new Date());
+            coupon.setOrderId(order.getOrderId());
+            Result result = couponService.changeCouponStatus(coupon);
+            //判断执行结果
+            if (result.getSuccess().equals(ShopCode.SHOP_FAIL.getSuccess())) {
+                CastException.cast(ShopCode.SHOP_COUPON_USE_FAIL);
+            }
+
+            log.info("订单:[" + order.getOrderId() + "] 使用优惠券[" + coupon.getCouponPrice() + "元] 成功");
+        }
 
     }
 }
