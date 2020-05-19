@@ -72,7 +72,7 @@ public class OrderServiceImpl implements IOrderService {
         }
         //4.校验订单金额是否合法
         if (order.getGoodsPrice().compareTo(goods.getGoodsPrice()) != 0) {
-            CastException.cast(ShopCode.SHOP_ORDERMOUNT_INVALID);
+            CastException.cast(ShopCode.SHOP_GOODS_PRICE_INVALID);
         }
         //5.校验订单商品数量是否合法
         if (order.getGoodsNumber() > goods.getGoodsNumber()) {
