@@ -8,10 +8,7 @@ import cn.qianfg.constant.ShopCode;
 import cn.qianfg.entity.Result;
 import cn.qianfg.exception.CastException;
 import cn.qianfg.shop.mapper.TradeOrderMapper;
-import cn.qianfg.shop.pojo.TradeCoupon;
-import cn.qianfg.shop.pojo.TradeGoods;
-import cn.qianfg.shop.pojo.TradeOrder;
-import cn.qianfg.shop.pojo.TradeUser;
+import cn.qianfg.shop.pojo.*;
 import cn.qianfg.utils.IDWorker;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
@@ -26,7 +23,7 @@ import java.util.Date;
 public class OrderServiceImpl implements IOrderService {
 
     @Reference
-    private IGoodsService iGoodsService;
+    private IGoodsService goodsService;
 
     @Reference
     private IUserService userService;
@@ -41,11 +38,11 @@ public class OrderServiceImpl implements IOrderService {
     private IDWorker idWorker;
 
     @Override
-    public Result confirmOrder(TradeOrder tradeOrder) {
+    public Result confirmOrder(TradeOrder order) {
         //1.校验订单
-
+        checkOrder(order);
         //2.生成预订单
-
+        Long orderId = savePreOrder(order);
         try {
             //3.扣减库存
 
@@ -76,7 +73,7 @@ public class OrderServiceImpl implements IOrderService {
             CastException.cast(ShopCode.SHOP_ORDER_INVALID);
         }
         //2.校验订单中的商品是否存在
-        TradeGoods goods = iGoodsService.findOne(order.getGoodsId());
+        TradeGoods goods = goodsService.findOne(order.getGoodsId());
         if (goods == null) {
             CastException.cast(ShopCode.SHOP_GOODS_NO_EXIST);
         }
@@ -186,5 +183,25 @@ public class OrderServiceImpl implements IOrderService {
         orderMapper.insert(order);
         //返回订单ID
         return order.getOrderId();
+    }
+
+    /**
+     * 扣减库存
+     *
+     * @param order
+     */
+    private void reduceGoodsNum(TradeOrder order) {
+        TradeGoodsNumberLog goodsNumberLog = new TradeGoodsNumberLog();
+        goodsNumberLog.setGoodsId(order.getGoodsId());
+        goodsNumberLog.setOrderId(order.getOrderId());
+        goodsNumberLog.setGoodsNumber(order.getGoodsNumber());
+        Result result = goodsService.reduceGoodsNum(goodsNumberLog);
+        if (!result.getSuccess()) {
+            //扣减库存失败
+            CastException.cast(ShopCode.SHOP_REDUCE_GOODS_NUM_FAIL);
+        }
+
+        log.info("订单:[" + order.getOrderId() + "] 扣减库存:[" + order.getGoodsNumber() + "个]成功");
+
     }
 }
