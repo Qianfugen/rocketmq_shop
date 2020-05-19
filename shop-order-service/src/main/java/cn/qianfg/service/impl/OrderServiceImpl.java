@@ -71,9 +71,7 @@ public class OrderServiceImpl implements IOrderService {
             CastException.cast(ShopCode.SHOP_USER_NO_EXIST);
         }
         //4.校验订单金额是否合法
-        //订单单价*数量
-        BigDecimal total = goods.getGoodsPrice().multiply(new BigDecimal(goods.getGoodsNumber()));
-        if (order.getPayAmount().compareTo(total) != 0) {
+        if (order.getGoodsPrice().compareTo(goods.getGoodsPrice()) != 0) {
             CastException.cast(ShopCode.SHOP_ORDERMOUNT_INVALID);
         }
         //5.校验订单商品数量是否合法
