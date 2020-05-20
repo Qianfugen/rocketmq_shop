@@ -206,6 +206,11 @@ public class OrderServiceImpl implements IOrderService {
 
     }
 
+    /**
+     * 扣减优惠券
+     *
+     * @param order
+     */
     private void changeCouponStatus(TradeOrder order) {
         //判断用户是否使用优惠券
         if (!StringUtils.isEmpty(order.getCouponId())) {
@@ -223,5 +228,30 @@ public class OrderServiceImpl implements IOrderService {
             log.info("订单:[" + order.getOrderId() + "] 使用优惠券[" + coupon.getCouponPrice() + "元] 成功");
         }
 
+    }
+
+    /**
+     * 使用余额
+     *
+     * @param order
+     */
+    public void reduceMoneyPaid(TradeOrder order) {
+        //判断订单中的余额是否合法
+        if (order.getMoneyPaid() != null && order.getMoneyPaid().compareTo(BigDecimal.ZERO) == 1) {
+            TradeUserMoneyLog userMoneyLog = new TradeUserMoneyLog();
+            userMoneyLog.setOrderId(order.getOrderId());
+            userMoneyLog.setUserId(order.getUserId());
+            userMoneyLog.setUseMoney(order.getMoneyPaid());
+            userMoneyLog.setMoneyLogType(ShopCode.SHOP_USER_MONEY_PAID.getCode());
+            //扣减余额
+            Result result=userService.updateMoneyPaid(userMoneyLog);
+            if(result.getSuccess().equals(ShopCode.SHOP_FAIL.getSuccess())){
+                CastException.cast(ShopCode.SHOP_USER_MONEY_REDUCE_FAIL);
+            }
+            log.info("订单:"+order.getOrderId()+",扣减余额成功");
+
+        } else {
+            CastException.cast(ShopCode.SHOP_MONEY_PAID_LESS_ZERO);
+        }
     }
 }
