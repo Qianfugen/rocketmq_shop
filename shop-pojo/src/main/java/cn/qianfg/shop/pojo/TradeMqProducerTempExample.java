@@ -1,10 +1,14 @@
 package cn.qianfg.shop.pojo;
 
+import lombok.ToString;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class TradeMqProducerTempExample {
+@ToString
+public class TradeMqProducerTempExample implements Serializable {
     protected String orderByClause;
 
     protected boolean distinct;

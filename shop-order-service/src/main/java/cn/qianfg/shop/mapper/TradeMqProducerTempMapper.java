@@ -2,10 +2,12 @@ package cn.qianfg.shop.mapper;
 
 import cn.qianfg.shop.pojo.TradeMqProducerTemp;
 import cn.qianfg.shop.pojo.TradeMqProducerTempExample;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+@Mapper
 public interface TradeMqProducerTempMapper {
     int countByExample(TradeMqProducerTempExample example);
 

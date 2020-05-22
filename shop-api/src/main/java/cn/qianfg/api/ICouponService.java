@@ -19,5 +19,5 @@ public interface ICouponService {
      * @param coupon
      * @return
      */
-    Result changeCouponStatus(TradeCoupon coupon);
+    Result updateCouponStatus(TradeCoupon coupon);
 }

@@ -1,10 +1,14 @@
 package cn.qianfg.shop.pojo;
 
+import lombok.ToString;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class TradeGoodsNumberLogExample {
+@ToString
+public class TradeGoodsNumberLogExample implements Serializable {
     protected String orderByClause;
 
     protected boolean distinct;

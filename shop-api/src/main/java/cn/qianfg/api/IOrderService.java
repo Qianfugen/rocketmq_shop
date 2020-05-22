@@ -11,4 +11,6 @@ public interface IOrderService {
      * @return
      */
     Result confirmOrder(TradeOrder tradeOrder);
+
+    TradeOrder fineOne(Long orderId);
 }

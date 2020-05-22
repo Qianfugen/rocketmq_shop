@@ -1,8 +1,12 @@
 package cn.qianfg.shop.pojo;
 
+import lombok.ToString;
+
+import java.io.Serializable;
 import java.util.Date;
 
-public class TradeUser {
+@ToString
+public class TradeUser implements Serializable {
     private Long userId;
 
     private String userName;

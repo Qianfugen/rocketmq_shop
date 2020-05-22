@@ -1,8 +1,12 @@
 package cn.qianfg.shop.pojo;
 
+import lombok.ToString;
+
+import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class TradePay {
+@ToString
+public class TradePay implements Serializable {
     private Long payId;
 
     private Long orderId;

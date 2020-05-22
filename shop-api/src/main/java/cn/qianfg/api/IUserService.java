@@ -1,7 +1,6 @@
 package cn.qianfg.api;
 
 import cn.qianfg.entity.Result;
-import cn.qianfg.shop.pojo.TradeOrder;
 import cn.qianfg.shop.pojo.TradeUser;
 import cn.qianfg.shop.pojo.TradeUserMoneyLog;
 

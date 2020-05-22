@@ -1,6 +1,11 @@
 package cn.qianfg.shop.pojo;
 
-public class TradeMqConsumerLogKey {
+import lombok.ToString;
+
+import java.io.Serializable;
+
+@ToString
+public class TradeMqConsumerLogKey implements Serializable {
     private String groupName;
 
     private String msgTag;

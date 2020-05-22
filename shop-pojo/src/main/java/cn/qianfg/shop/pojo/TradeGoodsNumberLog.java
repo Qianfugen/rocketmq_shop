@@ -1,8 +1,12 @@
 package cn.qianfg.shop.pojo;
 
+import lombok.ToString;
+
+import java.io.Serializable;
 import java.util.Date;
 
-public class TradeGoodsNumberLog extends TradeGoodsNumberLogKey {
+@ToString
+public class TradeGoodsNumberLog extends TradeGoodsNumberLogKey implements Serializable {
     private Integer goodsNumber;
 
     private Date logTime;

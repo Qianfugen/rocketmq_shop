@@ -1,9 +1,13 @@
 package cn.qianfg.shop.pojo;
 
+import lombok.ToString;
+
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class TradeCoupon {
+@ToString
+public class TradeCoupon implements Serializable {
     private Long couponId;
 
     private BigDecimal couponPrice;

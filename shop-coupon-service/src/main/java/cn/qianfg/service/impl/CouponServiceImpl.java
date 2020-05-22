@@ -24,7 +24,7 @@ public class CouponServiceImpl implements ICouponService {
     }
 
     @Override
-    public Result changeCouponStatus(TradeCoupon coupon) {
+    public Result updateCouponStatus(TradeCoupon coupon) {
         try {
             //判断请求参数是否合法
             if (coupon == null || StringUtils.isEmpty(coupon.getCouponId())) {

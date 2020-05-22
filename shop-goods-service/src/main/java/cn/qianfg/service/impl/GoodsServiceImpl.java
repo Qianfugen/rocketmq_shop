@@ -1,6 +1,7 @@
 package cn.qianfg.service.impl;
 
 import cn.qianfg.api.IGoodsService;
+import cn.qianfg.api.IUserService;
 import cn.qianfg.constant.ShopCode;
 import cn.qianfg.entity.Result;
 import cn.qianfg.exception.CastException;
@@ -8,6 +9,8 @@ import cn.qianfg.shop.mapper.TradeGoodsMapper;
 import cn.qianfg.shop.mapper.TradeGoodsNumberLogMapper;
 import cn.qianfg.shop.pojo.TradeGoods;
 import cn.qianfg.shop.pojo.TradeGoodsNumberLog;
+import cn.qianfg.shop.pojo.TradeUser;
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -58,4 +61,5 @@ public class GoodsServiceImpl implements IGoodsService {
 
         return new Result(ShopCode.SHOP_SUCCESS.getSuccess(), ShopCode.SHOP_SUCCESS.getMessage(), ShopCode.SHOP_SUCCESS.getCode());
     }
+
 }

@@ -1,6 +1,11 @@
 package cn.qianfg.shop.pojo;
 
-public class TradeGoodsNumberLogKey {
+import lombok.ToString;
+
+import java.io.Serializable;
+
+@ToString
+public class TradeGoodsNumberLogKey implements Serializable {
     private Long goodsId;
 
     private Long orderId;
