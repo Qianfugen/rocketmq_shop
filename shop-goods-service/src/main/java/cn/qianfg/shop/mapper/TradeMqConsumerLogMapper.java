@@ -3,10 +3,12 @@ package cn.qianfg.shop.mapper;
 import cn.qianfg.shop.pojo.TradeMqConsumerLog;
 import cn.qianfg.shop.pojo.TradeMqConsumerLogExample;
 import cn.qianfg.shop.pojo.TradeMqConsumerLogKey;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+@Mapper
 public interface TradeMqConsumerLogMapper {
     int countByExample(TradeMqConsumerLogExample example);
 

@@ -5,6 +5,7 @@ import cn.qianfg.api.IGoodsService;
 import cn.qianfg.api.IOrderService;
 import cn.qianfg.api.IUserService;
 import cn.qianfg.constant.ShopCode;
+import cn.qianfg.entity.MQEntity;
 import cn.qianfg.entity.Result;
 import cn.qianfg.exception.CastException;
 import cn.qianfg.shop.mapper.TradeOrderMapper;
@@ -12,8 +13,15 @@ import cn.qianfg.shop.pojo.*;
 import cn.qianfg.utils.IDWorker;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.rocketmq.client.exception.MQBrokerException;
+import org.apache.rocketmq.client.exception.MQClientException;
+import org.apache.rocketmq.common.message.Message;
+import org.apache.rocketmq.remoting.exception.RemotingException;
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -34,11 +42,20 @@ public class OrderServiceImpl implements IOrderService {
     @Reference
     private ICouponService couponService;
 
+    @Value("${mq.order.topic}")
+    private String topic;
+
+    @Value("${mq.order.tag.cancel}")
+    private String tag;
+
     @Autowired
     private TradeOrderMapper orderMapper;
 
     @Autowired
     private IDWorker idWorker;
+
+    @Autowired
+    private RocketMQTemplate rocketMQTemplate;
 
     @Override
     public Result confirmOrder(TradeOrder order) {
@@ -53,16 +70,44 @@ public class OrderServiceImpl implements IOrderService {
             updateCouponStatus(order);
             //5.使用余额
             reduceMoneyPaid(order);
+
+            //模拟异常抛出
+            CastException.cast(ShopCode.SHOP_FAIL);
+
             //6.确认订单
             updateOrderStatus(order);
             //7.返回成功状态
             return new Result(ShopCode.SHOP_SUCCESS.getSuccess(), ShopCode.SHOP_SUCCESS.getMessage(), ShopCode.SHOP_SUCCESS.getCode());
         } catch (Exception e) {
             //1.确认订单失败,发送消息
-
+            MQEntity mqEntity = new MQEntity();
+            mqEntity.setOrderId(orderId);
+            mqEntity.setUserId(order.getUserId());
+            mqEntity.setUserMoney(order.getMoneyPaid());
+            mqEntity.setGoodsId(order.getGoodsId());
+            mqEntity.setGoodsNum(order.getGoodsNumber());
+            mqEntity.setCouponId(order.getCouponId());
             //2.返回失败状态
+            try {
+                sendCancelOrder(topic, tag, order.getOrderId().toString(), JSON.toJSONString(mqEntity));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
             return new Result(ShopCode.SHOP_FAIL.getSuccess(), ShopCode.SHOP_FAIL.getMessage(), ShopCode.SHOP_FAIL.getCode());
         }
+    }
+
+    /**
+     * 发送订单确认失败的消息
+     *
+     * @param topic
+     * @param tag
+     * @param toString
+     * @param toJSONString
+     */
+    private void sendCancelOrder(String topic, String tag, String keys, String body) throws InterruptedException, RemotingException, MQClientException, MQBrokerException {
+        Message message = new Message(topic, tag, keys, body.getBytes());
+        rocketMQTemplate.getProducer().send(message);
     }
 
     /**
@@ -77,7 +122,7 @@ public class OrderServiceImpl implements IOrderService {
         }
         //2.校验订单中的商品是否存在
         log.info("开始查找商品");
-        log.info("goodsId: "+order.getGoodsId());
+        log.info("goodsId: " + order.getGoodsId());
         TradeGoods goods = goodsService.findOne(order.getGoodsId());
         if (goods == null) {
             CastException.cast(ShopCode.SHOP_GOODS_NO_EXIST);
@@ -132,7 +177,7 @@ public class OrderServiceImpl implements IOrderService {
             CastException.cast(ShopCode.SHOP_ORDER_SHIPPINGFEE_INVALID);
         }
         //4.核算订单总价是否正确
-        log.info("order:"+order);
+        log.info("order:" + order);
         BigDecimal orderAmount = order.getGoodsPrice().multiply(new BigDecimal(order.getGoodsNumber()));
         orderAmount.add(shippingFee);
         if (order.getOrderAmount().compareTo(orderAmount) != 0) {
@@ -142,7 +187,7 @@ public class OrderServiceImpl implements IOrderService {
         Long couponId = order.getCouponId();
         if (couponId != null) {
             log.info("开始查找优惠券");
-            log.info("优惠券ID: "+couponId.toString());
+            log.info("优惠券ID: " + couponId.toString());
             TradeCoupon coupon = couponService.findOne(couponId);
             //优惠券不存在
             if (coupon == null) {

@@ -1,16 +1,12 @@
 package cn.qianfg;
 
-import cn.qianfg.api.ICouponService;
-import cn.qianfg.api.IGoodsService;
 import cn.qianfg.api.IOrderService;
-import cn.qianfg.api.IUserService;
-import cn.qianfg.shop.pojo.TradeGoods;
 import cn.qianfg.shop.pojo.TradeOrder;
-import cn.qianfg.shop.pojo.TradeUser;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 
 @SpringBootTest(classes = ShopOrderServiceApplication.class)
@@ -20,7 +16,7 @@ class ShopOrderServiceApplicationTests {
     private IOrderService orderService;
 
     @Test
-    public void confirmOrder() {
+    public void confirmOrder() throws IOException {
         Long couponId = 984390130081161398L;
         Long goodsId = 345959443973935104L;
         Long userId = 345963634385633280L;
@@ -41,6 +37,9 @@ class ShopOrderServiceApplicationTests {
         order.setShippingFee(BigDecimal.ZERO);
 
         orderService.confirmOrder(order);
+
+        //不要立即停止,等到消息队列的处理结果
+        System.in.read();
     }
 
 }
