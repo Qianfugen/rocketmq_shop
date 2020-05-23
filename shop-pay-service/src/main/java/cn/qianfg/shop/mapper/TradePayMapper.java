@@ -2,10 +2,12 @@ package cn.qianfg.shop.mapper;
 
 import cn.qianfg.shop.pojo.TradePay;
 import cn.qianfg.shop.pojo.TradePayExample;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+@Mapper
 public interface TradePayMapper {
     int countByExample(TradePayExample example);
 
